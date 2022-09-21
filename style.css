@@ -1,0 +1,57 @@
+:root {
+  font-size: 62.5%;
+}
+
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1 {
+  text-align: center;
+  font-size: 8rem;
+  padding: 2rem;
+  background-color: #ffd166;
+  text-shadow: 2px 7px 5px rgba(0, 0, 0, 0.3),
+    0px -4px 10px rgba(255, 255, 255, 0.3);
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title-screen {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10rem;
+}
+
+h2 {
+  text-align: center;
+  font-size: 5rem;
+  text-shadow: 2px 7px 5px rgba(0, 0, 0, 0.3),
+    0px -4px 10px rgba(255, 255, 255, 0.3);
+  text-decoration: underline solid 2px;
+  text-underline-offset: 1.5rem;
+  letter-spacing: 1rem;
+}
+
+.mode {
+  font-size: 3rem;
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+  padding: 2rem;
+}
+
+.mode:hover {
+  transform: scale(1.1);
+  background-color: #edede9;
+}
