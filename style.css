@@ -23,6 +23,7 @@ h1 {
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 3rem;
 }
 
 .title-screen {
@@ -54,4 +55,30 @@ h2 {
 .mode:hover {
   transform: scale(1.1);
   background-color: #edede9;
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  width: 60rem;
+  box-sizing: content-box;
+  border: solid black 1px;
+}
+
+.square {
+  width: 20rem;
+  min-height: 20rem;
+  border: solid black 1px;
+  text-align: center;
+  font-size: 10rem;
+  line-height: 20rem;
+}
+
+.inactive {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.hidden {
+  display: none;
 }
