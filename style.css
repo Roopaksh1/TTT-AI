@@ -21,9 +21,11 @@ h1 {
 
 .wrapper {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   padding: 3rem;
+  gap: 2rem;
 }
 
 .title-screen {
@@ -67,11 +69,23 @@ h2 {
 
 .square {
   width: 20rem;
-  min-height: 20rem;
+  height: 20rem;
   border: solid black 1px;
   text-align: center;
   font-size: 10rem;
   line-height: 20rem;
+}
+
+.restart {
+  padding: 2rem;
+  font-size: 2rem;
+  background-color: #bde0fe;
+  border: none;
+  cursor: pointer;
+}
+
+.restart:active {
+  background-color: #a2d2ff;
 }
 
 .inactive {

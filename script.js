@@ -65,20 +65,6 @@ const gameBoard = (() => {
     return _checkDraw();
   };
 
-  const createBoard = () => {
-    const wrapper = document.querySelector(".wrapper");
-    const board = document.createElement("div");
-    wrapper.appendChild(board);
-    board.classList.add("board");
-    for (let i = 0; i < 9; i++) {
-      const square = document.createElement("div");
-      square.addEventListener("click", game.moveMade);
-      square.classList.add("square");
-      square.setAttribute("data-index", `${i}`);
-      board.appendChild(square);
-    }
-  };
-
   const insert = (mark, index) => {
     if (_isEmpty(index)) {
       _board[index] = mark;
@@ -90,7 +76,14 @@ const gameBoard = (() => {
     }
   };
 
-  return { insert, createBoard, gameOver };
+  const reset = () => {
+    _board.fill("");
+    _magicBoard.fill(0);
+    _updateBoard();
+    document.querySelector(".board").classList.remove("inactive");
+  };
+
+  return { insert, gameOver, reset };
 })();
 
 const Player = (name, mark, cpu, currentTurn) => {
@@ -136,7 +129,7 @@ const game = (() => {
       playerTwo.setCpu(true);
     }
     document.querySelector(".title-screen").classList.add("hidden");
-    gameBoard.createBoard();
+    dynamicContent.createBoard();
   };
 
   const _setTurn = (pOne, pTwo) => {
@@ -164,8 +157,36 @@ const game = (() => {
 
     if (gameBoard.gameOver()) {
       _endGame();
+      dynamicContent.restartButton();
     }
   };
 
   return { moveMade };
+})();
+
+const dynamicContent = (() => {
+  const createBoard = () => {
+    const wrapper = document.querySelector(".wrapper");
+    const board = document.createElement("div");
+    wrapper.appendChild(board);
+    board.classList.add("board");
+    for (let i = 0; i < 9; i++) {
+      const square = document.createElement("div");
+      square.addEventListener("click", game.moveMade);
+      square.classList.add("square");
+      square.setAttribute("data-index", `${i}`);
+      board.appendChild(square);
+    }
+  };
+
+  const restartButton = () => {
+    const wrapper = document.querySelector(".wrapper");
+    button = document.createElement("button");
+    button.textContent = "Restart";
+    button.classList.add("restart");
+    button.addEventListener("click", gameBoard.reset);
+    wrapper.appendChild(button);
+  };
+
+  return { createBoard, restartButton };
 })();
