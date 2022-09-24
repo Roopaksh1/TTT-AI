@@ -94,7 +94,6 @@ const Player = (name, mark, cpu, currentTurn) => {
   const getName = () => name;
   const isCpu = () => comp;
   const setCpu = (value) => (comp = value);
-  const getCpuChoice = () => Math.floor(Math.random() * 10);
   return {
     getMark,
     getCurrentTurn,
@@ -102,13 +101,12 @@ const Player = (name, mark, cpu, currentTurn) => {
     setCurrentTurn,
     isCpu,
     setCpu,
-    getCpuChoice,
   };
 };
 
 const game = (() => {
-  const playerOne = Player("Roopaksh", "X", false, true);
-  const playerTwo = Player("player2", "O", false, false);
+  let playerOne = null;
+  let playerTwo = null;
   // 0 for cpu and 1 for player
   let _mode = "0";
 
@@ -124,12 +122,22 @@ const game = (() => {
   };
 
   const _showBoard = (e) => {
+    playerOne = Player("Roopaksh", "X", false, true);
+    playerTwo = Player("player2", "O", false, false);
     e.target.classList.contains("player") ? (_mode = 1) : (_mode = 0);
     if (_mode == 0) {
       playerTwo.setCpu(true);
     }
     document.querySelector(".title-screen").classList.add("hidden");
-    dynamicContent.createBoard();
+    if (document.querySelector(".board") === null) {
+      dynamicContent.createBoard();
+      dynamicContent.backButton();
+      dynamicContent.restartButton();
+    } else {
+      document.querySelector(".board").classList.remove("hidden");
+      dynamicContent.toggleBackButton();
+      dynamicContent.toggleRestartButton();
+    }
   };
 
   const _setTurn = (pOne, pTwo) => {
@@ -143,21 +151,19 @@ const game = (() => {
       if (gameBoard.insert(playerOne.getMark(), index)) {
         _setTurn(false, true);
       }
+    }
+
+    if (playerTwo.getCurrentTurn()) {
       if (playerTwo.isCpu()) {
-        while (
-          !gameBoard.insert(playerTwo.getMark(), playerTwo.getCpuChoice())
-        ) {}
+        while (!gameBoard.insert(playerTwo.getMark(), bot.getCpuChoice())) {}
         _setTurn(true, false);
-      }
-    } else {
-      if (gameBoard.insert(playerTwo.getMark(), index)) {
+      } else if (gameBoard.insert(playerTwo.getMark(), index)) {
         _setTurn(true, false);
       }
     }
 
     if (gameBoard.gameOver()) {
       _endGame();
-      dynamicContent.restartButton();
     }
   };
 
@@ -165,6 +171,14 @@ const game = (() => {
 })();
 
 const dynamicContent = (() => {
+  const _backToMenu = () => {
+    gameBoard.reset();
+    document.querySelector(".title-screen").classList.remove("hidden");
+    document.querySelector(".board").classList.add("hidden");
+    toggleBackButton();
+    toggleRestartButton();
+  };
+
   const createBoard = () => {
     const wrapper = document.querySelector(".wrapper");
     const board = document.createElement("div");
@@ -179,6 +193,14 @@ const dynamicContent = (() => {
     }
   };
 
+  const toggleRestartButton = () => {
+    document.querySelector(".restart").classList.toggle("hidden");
+  };
+
+  const toggleBackButton = () => {
+    document.querySelector(".back").classList.toggle("hidden");
+  };
+
   const restartButton = () => {
     const wrapper = document.querySelector(".wrapper");
     button = document.createElement("button");
@@ -188,5 +210,26 @@ const dynamicContent = (() => {
     wrapper.appendChild(button);
   };
 
-  return { createBoard, restartButton };
+  const backButton = () => {
+    const wrapper = document.querySelector(".wrapper");
+    button = document.createElement("button");
+    button.textContent = "Back";
+    button.classList.add("back");
+    button.addEventListener("click", _backToMenu);
+    wrapper.appendChild(button);
+  };
+
+  return {
+    createBoard,
+    restartButton,
+    toggleRestartButton,
+    backButton,
+    toggleBackButton,
+  };
+})();
+
+const bot = (() => {
+  const getCpuChoice = () => Math.floor(Math.random() * 9);
+
+  return { getCpuChoice };
 })();

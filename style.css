@@ -88,6 +88,18 @@ h2 {
   background-color: #a2d2ff;
 }
 
+.back {
+  padding: 2rem 3rem;
+  font-size: 2rem;
+  background-color: #bde0fe;
+  border: none;
+  cursor: pointer;
+}
+
+.back:active {
+  background-color: #a2d2ff;
+}
+
 .inactive {
   opacity: 0.5;
   pointer-events: none;
