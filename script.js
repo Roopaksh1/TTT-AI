@@ -81,19 +81,23 @@ const gameBoard = (() => {
     _magicBoard.fill(0);
     _updateBoard();
     document.querySelector(".board").classList.remove("inactive");
+    document.querySelector(".result").classList.add("hidden");
+    game.setTurn(true, false);
   };
 
   return { insert, gameOver, reset };
 })();
 
 const Player = (name, mark, cpu, currentTurn) => {
-  let comp = cpu;
+  let _comp = cpu;
+  let _name = name;
   const getMark = () => mark;
   const getCurrentTurn = () => currentTurn;
   const setCurrentTurn = (value) => (currentTurn = value);
-  const getName = () => name;
-  const isCpu = () => comp;
-  const setCpu = (value) => (comp = value);
+  const getName = () => _name;
+  const isCpu = () => _comp;
+  const setCpu = (value) => (_comp = value);
+  const setName = (value) => (_name = value);
   return {
     getMark,
     getCurrentTurn,
@@ -101,6 +105,7 @@ const Player = (name, mark, cpu, currentTurn) => {
     setCurrentTurn,
     isCpu,
     setCpu,
+    setName,
   };
 };
 
@@ -117,8 +122,10 @@ const game = (() => {
   };
   window.addEventListener("load", _bindEvents);
 
-  const _endGame = () => {
+  const _endGame = (player) => {
     document.querySelector(".board").classList.add("inactive");
+    document.querySelector(".result").classList.remove("hidden");
+    dynamicContent.setResult(player);
   };
 
   const _showBoard = (e) => {
@@ -127,12 +134,12 @@ const game = (() => {
     e.target.classList.contains("player") ? (_mode = 1) : (_mode = 0);
     if (_mode == 0) {
       playerTwo.setCpu(true);
+      playerTwo.setName("CPU");
     }
     document.querySelector(".title-screen").classList.add("hidden");
     if (document.querySelector(".board") === null) {
       dynamicContent.createBoard();
-      dynamicContent.backButton();
-      dynamicContent.restartButton();
+      dynamicContent.createButtons();
     } else {
       document.querySelector(".board").classList.remove("hidden");
       dynamicContent.toggleBackButton();
@@ -140,7 +147,7 @@ const game = (() => {
     }
   };
 
-  const _setTurn = (pOne, pTwo) => {
+  const setTurn = (pOne, pTwo) => {
     playerOne.setCurrentTurn(pOne);
     playerTwo.setCurrentTurn(pTwo);
   };
@@ -149,25 +156,28 @@ const game = (() => {
     const index = Number(e.target.getAttribute("data-index"));
     if (playerOne.getCurrentTurn()) {
       if (gameBoard.insert(playerOne.getMark(), index)) {
-        _setTurn(false, true);
+        setTurn(false, true);
       }
     }
-
-    if (playerTwo.getCurrentTurn()) {
-      if (playerTwo.isCpu()) {
+    if (playerTwo.isCpu() && playerTwo.getCurrentTurn()) {
+      if (gameBoard.gameOver()) {
+        playerOne.getCurrentTurn() ? _endGame(playerTwo) : _endGame(playerOne);
+      } else {
         while (!gameBoard.insert(playerTwo.getMark(), bot.getCpuChoice())) {}
-        _setTurn(true, false);
-      } else if (gameBoard.insert(playerTwo.getMark(), index)) {
-        _setTurn(true, false);
+        setTurn(true, false);
+      }
+    } else if (playerTwo.getCurrentTurn()) {
+      if (gameBoard.insert(playerTwo.getMark(), index)) {
+        setTurn(true, false);
       }
     }
 
     if (gameBoard.gameOver()) {
-      _endGame();
+      playerOne.getCurrentTurn() ? _endGame(playerTwo) : _endGame(playerOne);
     }
   };
 
-  return { moveMade };
+  return { moveMade, setTurn };
 })();
 
 const dynamicContent = (() => {
@@ -177,10 +187,50 @@ const dynamicContent = (() => {
     document.querySelector(".board").classList.add("hidden");
     toggleBackButton();
     toggleRestartButton();
+    document.querySelector(".result").classList.add("hidden");
+  };
+
+  const _restartButton = (parent) => {
+    button = document.createElement("button");
+    button.textContent = "Restart";
+    button.classList.add("restart");
+    button.addEventListener("click", gameBoard.reset);
+    parent.appendChild(button);
+  };
+
+  const _backButton = (parent) => {
+    button = document.createElement("button");
+    button.textContent = "Back";
+    button.classList.add("back");
+    button.addEventListener("click", _backToMenu);
+    parent.appendChild(button);
+  };
+
+  const _resultScreen = () => {
+    const wrapper = document.querySelector(".wrapper");
+    const p = document.createElement("p");
+    p.classList.add("hidden", "result");
+    wrapper.appendChild(p);
+  };
+
+  const createButtons = () => {
+    const wrapper = document.querySelector(".wrapper");
+    const div = document.createElement("div");
+    div.classList.add("buttons");
+    wrapper.appendChild(div);
+    _backButton(div);
+    _restartButton(div);
+  };
+
+  const setResult = (player) => {
+    document.querySelector(
+      ".wrapper > p"
+    ).textContent = `${player.getName()} Wins`;
   };
 
   const createBoard = () => {
     const wrapper = document.querySelector(".wrapper");
+    _resultScreen();
     const board = document.createElement("div");
     wrapper.appendChild(board);
     board.classList.add("board");
@@ -201,30 +251,12 @@ const dynamicContent = (() => {
     document.querySelector(".back").classList.toggle("hidden");
   };
 
-  const restartButton = () => {
-    const wrapper = document.querySelector(".wrapper");
-    button = document.createElement("button");
-    button.textContent = "Restart";
-    button.classList.add("restart");
-    button.addEventListener("click", gameBoard.reset);
-    wrapper.appendChild(button);
-  };
-
-  const backButton = () => {
-    const wrapper = document.querySelector(".wrapper");
-    button = document.createElement("button");
-    button.textContent = "Back";
-    button.classList.add("back");
-    button.addEventListener("click", _backToMenu);
-    wrapper.appendChild(button);
-  };
-
   return {
     createBoard,
-    restartButton,
     toggleRestartButton,
-    backButton,
     toggleBackButton,
+    setResult,
+    createButtons,
   };
 })();
 

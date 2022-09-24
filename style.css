@@ -94,10 +94,19 @@ h2 {
   background-color: #bde0fe;
   border: none;
   cursor: pointer;
+  margin-right: 2rem;
 }
 
 .back:active {
   background-color: #a2d2ff;
+}
+
+.result {
+  font-size: 3.5rem;
+  border: black solid 2px;
+  padding: 2rem;
+  max-width: 30rem;
+  background-color: #edf2f4;
 }
 
 .inactive {
