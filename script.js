@@ -2,7 +2,7 @@ const gameBoard = (() => {
   const _board = ["", "", "", "", "", "", "", "", ""];
   const _magicBoard = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-  const _convertToMagicNumber = () => {
+  const convertToMagicNumber = () => {
     for (let i = 0; i < 9; i++) {
       _magicBoard[i] = _board[i] === "X" ? 1 : _board[i] === "O" ? -1 : 0;
     }
@@ -24,7 +24,7 @@ const gameBoard = (() => {
         return false;
       }
     }
-    return true;
+    return "draw";
   };
 
   const gameOver = () => {
@@ -69,7 +69,7 @@ const gameBoard = (() => {
     if (_isEmpty(index)) {
       _board[index] = mark;
       _updateBoard(index);
-      _convertToMagicNumber();
+      convertToMagicNumber();
       return 1;
     } else {
       return 0;
@@ -85,7 +85,8 @@ const gameBoard = (() => {
     game.setTurn(true, false);
   };
 
-  return { insert, gameOver, reset };
+  const getBoard = () => _board;
+  return { insert, gameOver, reset, getBoard, convertToMagicNumber };
 })();
 
 const Player = (name, mark, cpu, currentTurn) => {
@@ -129,7 +130,7 @@ const game = (() => {
   };
 
   const _showBoard = (e) => {
-    playerOne = Player("Roopaksh", "X", false, true);
+    playerOne = Player("Player1", "X", false, true);
     playerTwo = Player("player2", "O", false, false);
     e.target.classList.contains("player") ? (_mode = 1) : (_mode = 0);
     if (_mode == 0) {
@@ -177,7 +178,9 @@ const game = (() => {
     }
   };
 
-  return { moveMade, setTurn };
+  const getPlayers = () => ({ playerOne, playerTwo });
+
+  return { moveMade, setTurn, getPlayers };
 })();
 
 const dynamicContent = (() => {
@@ -261,7 +264,65 @@ const dynamicContent = (() => {
 })();
 
 const bot = (() => {
-  const getCpuChoice = () => Math.floor(Math.random() * 9);
+  const _scores = { X: 1, O: -1, draw: 0 };
+
+  const _minimax = (board, isMaximizer) => {
+    const playerOne = game.getPlayers().playerOne;
+    const playerTwo = game.getPlayers().playerTwo;
+    gameBoard.convertToMagicNumber()
+    let result = gameBoard.gameOver();
+    if (result === "draw") {
+      return _scores.draw;
+    } else if (result === 1) {
+      if (isMaximizer) {
+        return _scores[playerTwo.getMark()];
+      } else return _scores[playerOne.getMark()];
+    }
+
+    if (isMaximizer) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === "") {
+          board[i] = playerOne.getMark();
+          let score = _minimax(board, false);
+          board[i] = "";
+          bestScore = Math.max(score, bestScore);
+        }
+      }
+      return bestScore;
+    } else {
+      let bestScore = Infinity;
+      for (let i = 0; i < 9; i++) {
+        if (board[i] === "") {
+          board[i] = playerTwo.getMark();
+          let score = _minimax(board, true);
+          board[i] = "";
+          bestScore = Math.min(score, bestScore);
+        }
+      }
+      return bestScore;
+    }
+  };
+
+  const getCpuChoice = () => {
+    const playerOne = game.getPlayers().playerOne;
+    const playerTwo = game.getPlayers().playerTwo;
+    const board = gameBoard.getBoard();
+    let bestScore = Infinity;
+    let bestMove;
+    for (let i = 0; i < 9; i++) {
+      if (board[i] === "") {
+        board[i] = playerTwo.getMark();
+        let score = _minimax(board, true);
+        board[i] = "";
+        if (score < bestScore) {
+          bestScore = score;
+          bestMove = i;
+        }
+      }
+    }
+    return bestMove;
+  };
 
   return { getCpuChoice };
 })();
