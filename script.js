@@ -123,10 +123,10 @@ const game = (() => {
   };
   window.addEventListener("load", _bindEvents);
 
-  const _endGame = (player) => {
+  const _endGame = (player, isTie) => {
     document.querySelector(".board").classList.add("inactive");
     document.querySelector(".result").classList.remove("hidden");
-    dynamicContent.setResult(player);
+    dynamicContent.setResult(player, isTie);
   };
 
   const _showBoard = (e) => {
@@ -162,7 +162,13 @@ const game = (() => {
     }
     if (playerTwo.isCpu() && playerTwo.getCurrentTurn()) {
       if (gameBoard.gameOver()) {
-        playerOne.getCurrentTurn() ? _endGame(playerTwo) : _endGame(playerOne);
+        if (gameBoard.gameOver() == "draw") {
+          _endGame(null, true);
+        } else {
+          playerOne.getCurrentTurn()
+            ? _endGame(playerTwo)
+            : _endGame(playerOne);
+        }
       } else {
         while (!gameBoard.insert(playerTwo.getMark(), bot.getCpuChoice())) {}
         setTurn(true, false);
@@ -174,7 +180,11 @@ const game = (() => {
     }
 
     if (gameBoard.gameOver()) {
-      playerOne.getCurrentTurn() ? _endGame(playerTwo) : _endGame(playerOne);
+      if (gameBoard.gameOver() == "draw") {
+        _endGame(null, true);
+      } else {
+        playerOne.getCurrentTurn() ? _endGame(playerTwo) : _endGame(playerOne);
+      }
     }
   };
 
@@ -225,10 +235,14 @@ const dynamicContent = (() => {
     _restartButton(div);
   };
 
-  const setResult = (player) => {
-    document.querySelector(
-      ".wrapper > p"
-    ).textContent = `${player.getName()} Wins`;
+  const setResult = (player, isTie) => {
+    if (isTie) {
+      document.querySelector(".wrapper > p").textContent = "TIE";
+    } else {
+      document.querySelector(
+        ".wrapper > p"
+      ).textContent = `${player.getName()} Wins`;
+    }
   };
 
   const createBoard = () => {
@@ -269,7 +283,7 @@ const bot = (() => {
   const _minimax = (board, isMaximizer) => {
     const playerOne = game.getPlayers().playerOne;
     const playerTwo = game.getPlayers().playerTwo;
-    gameBoard.convertToMagicNumber()
+    gameBoard.convertToMagicNumber();
     let result = gameBoard.gameOver();
     if (result === "draw") {
       return _scores.draw;
